@@ -19,7 +19,9 @@ function Layout({ children }) {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
-    document.title = titleByPath[pathname] || 'RAHMAT ADVOCATE'
+    if (!pathname.startsWith('/our-blog/')) {
+      document.title = titleByPath[pathname] || 'RAHMAT ADVOCATE'
+    }
   }, [pathname])
 
   useEffect(() => {

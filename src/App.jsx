@@ -6,6 +6,7 @@ import ServicesPage from './pages/ServicesPage'
 import ContactPage from './pages/ContactPage'
 import AboutPage from './pages/AboutPage'
 import BlogPage from './pages/BlogPage'
+import BlogPostPage from './pages/BlogPostPage'
 import GalleryPage from './pages/GalleryPage'
 import DisclaimerModal from './components/DisclaimerModel'
 
@@ -21,6 +22,7 @@ function App() {
           <Route path="/contact-us" element={<ContactPage />} />
           <Route path="/about-us" element={<AboutPage />} />
           <Route path="/our-blog" element={<BlogPage />} />
+          <Route path="/our-blog/:slug" element={<BlogPostPage />} />
           <Route path="/gallery" element={<GalleryPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

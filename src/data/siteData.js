@@ -12,7 +12,6 @@ import galleryImg5 from '../assets/gallery/Rahmat.com_43_2-e1675152948617.jpg'
 import galleryImg6 from '../assets/gallery/Rahmat.com_38_2.jpg'
 import galleryImg7 from '../assets/gallery/Rahmat.com_30_3.jpg'
 import galleryImg8 from '../assets/gallery/Rahmat.com_27_3.jpg'
-import blogCoverImage from '../assets/services/Picture2.jpg'
 
 export const brand = {
     name: 'RAHMAT ADVOCATE',
@@ -142,12 +141,3 @@ export const galleryImages = [
     galleryImg8,
 ]
 
-export const blogPosts = [
-    {
-        title: "About NRI's Cases",
-        date: 'January 31, 2023',
-        excerpt:
-            'An NRI case blog focuses on legal cases involving Non-Resident Indians, including property disputes, inheritance, taxation, and family matters.',
-        image: blogCoverImage,
-    },
-]

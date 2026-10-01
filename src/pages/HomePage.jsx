@@ -1,20 +1,22 @@
-import {Link} from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import {
-  FaBalanceScale,
-  FaBuilding,
-  FaFingerprint,
-  FaGlobeAsia,
-  FaStar, FaTelegram,
-  FaUserCircle,
-  FaUserShield
+    FaBalanceScale,
+    FaBuilding,
+    FaFingerprint,
+    FaGlobeAsia,
+    FaStar, FaTelegram,
+    FaUserCircle,
+    FaUserShield
 } from 'react-icons/fa'
 import AnimatedSection from '../components/AnimatedSection'
 import CounterCard from '../components/CounterCard'
 import HeroSlider from '../components/HeroSlider'
 import SectionHeading from '../components/SectionHeading'
 import TestimonialSlider from '../components/TestimonialSlider'
-import {blogPosts, counters, heroSlides, MoreAboutLayer, practiceItems, testimonials} from '../data/siteData'
-import {FaSuitcase, FaSkull} from "react-icons/fa6";
+import { counters, heroSlides, MoreAboutLayer, practiceItems, testimonials } from '../data/siteData'
+import { getBlogPosts, getSanityImageUrl } from '../lib/sanity'
+import { FaSuitcase, FaSkull } from "react-icons/fa6";
 
 const iconMap = [FaSuitcase, FaBuilding, FaSkull]
 const iconMapping = [FaStar, FaUserCircle, FaTelegram]
@@ -26,12 +28,20 @@ import clientSayBg from '../assets/home/7.jpg'
 
 
 function HomePage() {
-    const [featuredPost] = blogPosts
+    const [featuredPost, setFeaturedPost] = useState(null)
+
+    useEffect(() => {
+        let active = true
+        getBlogPosts()
+            .then((posts) => { if (active) setFeaturedPost(posts[0] || null) })
+            .catch(() => {})
+        return () => { active = false }
+    }, [])
 
     return (
         <>
             <AnimatedSection>
-                <HeroSlider slides={heroSlides}/>
+                <HeroSlider slides={heroSlides} />
             </AnimatedSection>
 
             <section className="relative z-20 -mt-10 md:-mt-22 pb-16 md:pb-22 bg-transparent">
@@ -78,7 +88,7 @@ function HomePage() {
                                     <article
                                         className="h-full border border-(--line) bg-white p-8 text-center hover:shadow-[0_10px_24px_rgba(0,0,0,.08)] transition-shadow flex flex-col items-center">
                                         <div className="size-16 text-(--primary) flex items-center justify-center">
-                                            <Icon size={45}/>
+                                            <Icon size={45} />
                                         </div>
 
                                         <h3 className="font-title mt-5 text-xl font-semibold">{item.title}</h3>
@@ -104,8 +114,8 @@ function HomePage() {
 
                     <div className="mt-10 grid lg:grid-cols-2 gap-8 lg:gap-9 items-start">
                         <AnimatedSection
-                            className="bg-white border-l-[3px] border-[var(--primary)] px-6 py-7 md:px-10 md:py-10">
-                            <h3 className="font-title text-[2.15rem] leading-none font-semibold text-[var(--primary)]">01</h3>
+                            className="bg-white border-l-[3px] border-(--primary) px-6 py-7 md:px-10 md:py-10">
+                            <h3 className="font-title text-[2.15rem] leading-none font-semibold text-(--primary)">01</h3>
                             <p className="mt-5 text-[1.08rem] leading-[1.45] text-[#4e5f72]">
                                 Expertise and experience: Clients look for legal consultants who have the knowledge and
                                 experience to handle their specific legal issue.
@@ -160,7 +170,7 @@ function HomePage() {
                                         <article
                                             className="h-full border border-(--line) bg-[#545454] text-white p-5 text-center hover:shadow-[0_10px_24px_rgba(0,0,0,.08)] transition-shadow flex flex-col items-center">
                                             <div className="size-12 flex items-center justify-center text-white">
-                                                <Icon size={55}/>
+                                                <Icon size={55} />
                                             </div>
                                             <h3 className="font-title mt-5 text-xl font-semibold">{item.title}</h3>
                                             <div><p className='border border-b w-10 text-[#44444E] mt-4 m-b-2'></p></div>
@@ -178,12 +188,12 @@ function HomePage() {
 
             </section>
 
-            <section className="relative overflow-hidden py-[5rem] md:py-[6.5rem]">
+            <section className="relative overflow-hidden py-20 md:py-26">
                 <div
                     className="absolute inset-0 bg-cover bg-center"
                     style={{ backgroundImage: `url(${clientSayBg})` }}
                 />
-                <div className="absolute inset-0 bg-black/68"/>
+                <div className="absolute inset-0 bg-black/68" />
 
                 <div className="container-shell relative z-10">
                     <AnimatedSection className="mx-auto max-w-3xl text-center text-white">
@@ -199,7 +209,7 @@ function HomePage() {
                         className="mx-auto mt-10 max-w-210 bg-white px-6 py-8 md:px-12 md:py-13 lg:px-15 shadow-[0_12px_35px_rgba(0,0,0,.18)]"
                         delay={120}
                     >
-                        <TestimonialSlider testimonials={testimonials}/>
+                        <TestimonialSlider testimonials={testimonials} />
                     </AnimatedSection>
                 </div>
             </section>
@@ -207,25 +217,21 @@ function HomePage() {
             <section className="py-18 md:py-24 bg-white">
                 <div className="container-shell">
                     <AnimatedSection>
-                        <SectionHeading centered title="Latest From Blog"/>
+                        <SectionHeading centered title="Latest From Blog" />
                     </AnimatedSection>
 
-                    <AnimatedSection className="max-w-4xl mx-auto mt-10 border border-(--line) p-6 md:p-8"
-                                     delay={120}>
-                        <article className="grid md:grid-cols-[220px_1fr] gap-6 items-center">
-                            <img src={featuredPost.image} alt={featuredPost.title}
-                                 className="w-full h-42 md:h-full object-cover"/>
-                            <div>
-                                <h3 className="font-title text-2xl">{featuredPost.title}</h3>
-                                <p className="text-sm mt-1 text-[#777]">{featuredPost.date}</p>
-                                <p className="mt-4 text-[#535353] leading-7">{featuredPost.excerpt}</p>
-                                <Link to="/our-blog"
-                                      className="inline-flex items-center gap-2 bg-(--primary) text-white px-6 py-3 font-title hover:bg-(--primary-dark) transition-colors mt-4"
-                                >
-                                    view all
-                                </Link>
-                            </div>
-                        </article>
+                    <AnimatedSection className="max-w-4xl mx-auto mt-10 border border-(--line) p-6 md:p-8" delay={120}>
+                        {featuredPost ? (
+                            <article className="grid md:grid-cols-[220px_1fr] gap-6 items-center">
+                                {featuredPost.featuredImage ? <img src={getSanityImageUrl(featuredPost.featuredImage, { width: 600 })} alt={featuredPost.title} className="w-full h-42 md:h-full object-cover" /> : null}
+                                <div>
+                                    <h3 className="font-title text-2xl">{featuredPost.title}</h3>
+                                    <p className="text-sm mt-1 text-[#777]">{featuredPost.publishedAt ? new Date(featuredPost.publishedAt).toLocaleDateString('en-US', { dateStyle: 'long' }) : ''}</p>
+                                    <p className="mt-4 text-[#535353] leading-7">{featuredPost.excerpt}</p>
+                                    <Link to={`/our-blog/${featuredPost.slug}`} className="inline-flex items-center gap-2 bg-(--primary) text-white px-6 py-3 font-title hover:bg-(--primary-dark) transition-colors mt-4">Read article</Link>
+                                </div>
+                            </article>
+                        ) : <Link to="/our-blog" className="font-title text-(--primary)">View all articles</Link>}
                     </AnimatedSection>
                 </div>
             </section>
