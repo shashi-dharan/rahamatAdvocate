@@ -11,6 +11,18 @@ const iconByLabel = {
   LinkedIn: FaLinkedinIn,
 }
 
+function BrandLogo({ onClick }) {
+  return (
+    <Link to="/" onClick={onClick} aria-label="SYED RAHMAT ADVOCATE" className="flex shrink-0 items-center gap-2.5">
+      <img src={brand.logo} alt="" className="size-11 rounded-full border border-[#b98b50] bg-black object-cover object-[center_15%]" />
+      <span className="font-serif leading-tight text-[#111]">
+        <span className="block whitespace-nowrap text-sm">RAHMAT ADVOCATE</span>
+        {/* <span className="mt-1 block text-[0.62rem] uppercase tracking-[0.14em]">RAHMAT ADVOCATE</span> */}
+      </span>
+    </Link>
+  )
+}
+
 function Header() {
   const [open, setOpen] = useState(false)
 
@@ -27,9 +39,7 @@ function Header() {
             <FaBars size={20} />
           </button>
 
-          <Link to="/" className="shrink-0">
-            <img src={brand.logo} alt={brand.name} className="h-14 w-auto md:h-16" />
-          </Link>
+          <BrandLogo />
 
           <nav className="hidden lg:flex flex-1 justify-center">
             <ul className="flex items-center gap-8">
@@ -39,10 +49,9 @@ function Header() {
                     to={item.path}
                     end={item.path === '/'}
                     className={({ isActive }) =>
-                      `font-title text-[0.95rem] tracking-[0.01em] pb-1 border-b-2 transition-colors ${
-                        isActive
-                          ? 'text-(--primary) border-(--primary) font-semibold'
-                          : 'text-[#121212] border-transparent hover:text-(--primary)'
+                      `font-title text-[0.95rem] tracking-[0.01em] pb-1 border-b-2 transition-colors ${isActive
+                        ? 'text-(--primary) border-(--primary) font-semibold'
+                        : 'text-[#121212] border-transparent hover:text-(--primary)'
                       }`
                     }
                   >
@@ -92,7 +101,7 @@ function Header() {
           className={`absolute left-0 top-0 h-full w-[88%] max-w-[330px] bg-white shadow-2xl p-6 transition-transform ${open ? 'translate-x-0' : '-translate-x-full'}`}
         >
           <div className="flex items-center justify-between">
-            <img src={brand.logo} alt={brand.name} className="h-12 w-auto" />
+            <BrandLogo onClick={() => setOpen(false)} />
             <button type="button" aria-label="Close menu" onClick={() => setOpen(false)}>
               <FaTimes size={19} />
             </button>
@@ -106,10 +115,9 @@ function Header() {
                   end={item.path === '/'}
                   onClick={() => setOpen(false)}
                   className={({ isActive }) =>
-                    `block px-3 py-2 rounded font-title text-[1.03rem] transition-colors ${
-                      isActive
-                        ? 'bg-[var(--primary)] text-white'
-                        : 'text-[#171717] hover:bg-[var(--primary)]/10 hover:text-[var(--primary)]'
+                    `block px-3 py-2 rounded font-title text-[1.03rem] transition-colors ${isActive
+                      ? 'bg-[var(--primary)] text-white'
+                      : 'text-[#171717] hover:bg-[var(--primary)]/10 hover:text-[var(--primary)]'
                     }`
                   }
                 >

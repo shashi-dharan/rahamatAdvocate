@@ -4,6 +4,7 @@ import heroSlideThree from '../assets/home/4.jpg'
 import clientAvatarOne from '../assets/home/avtar3.png'
 import clientAvatarTwo from '../assets/home/ava1.jpg'
 import clientAvatarThree from '../assets/home/ava2.jpg'
+import brandLogo from '../assets/home/Rahmat.com_45.jpg'
 import galleryImg1 from '../assets/gallery/WhatsApp-Image-2023-01-31-at-13.26.03-2.jpeg'
 import galleryImg2 from '../assets/gallery/WhatsApp-Image-2023-01-31-at-13.26.03-1.jpeg'
 import galleryImg3 from '../assets/gallery/WhatsApp-Image-2023-01-31-at-13.26.02.jpeg'
@@ -16,7 +17,7 @@ import galleryImg8 from '../assets/gallery/Rahmat.com_27_3.jpg'
 export const brand = {
     name: 'RAHMAT ADVOCATE',
     tagline: 'JUSTICE FOR ALL',
-    logo: 'https://rahmatadvocate.com/wp-content/uploads/2023/01/WhatsApp-Image-2023-01-31-at-14.51.21.jpeg',
+    logo: brandLogo,
 }
 
 export const navigation = [
@@ -26,6 +27,7 @@ export const navigation = [
     {label: 'About Us', path: '/about-us'},
     {label: 'Our Blog', path: '/our-blog'},
     {label: 'Gallery', path: '/gallery'},
+    {label: 'Post Blog', path: '/post-blog'},
 ]
 
 export const socials = [

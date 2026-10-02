@@ -4,19 +4,19 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently -n api,vite -c cyan,magenta \"node --env-file=.env server.js\" \"vite --host 0.0.0.0\"",
     "build": "node scripts/generate-sitemap.mjs && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "migrate:sanity": "node scripts/migrate-blogs-to-sanity.mjs"
+    "generate-admin-password": "node scripts/generate-admin-password.mjs"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
-    "@portabletext/react": "^8.0.1",
-    "@sanity/client": "^8.9.0",
-    "@sanity/image-url": "^2.1.1",
     "@vercel/speed-insights": "^1.3.1",
+    "bcryptjs": "^3.0.0",
+    "cloudinary": "^2.11.0",
     "gray-matter": "^4.0.3",
+    "mongodb": "^6.13.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-icons": "^5.5.0",
@@ -28,6 +28,7 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
+    "concurrently": "^9.1.2",
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",

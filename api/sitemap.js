@@ -1,6 +1,7 @@
+import { getPublishedBlogs } from './lib/blog-store.js'
+
 const siteUrl = 'https://www.rahmatadvocate.com'
 const routes = ['/', '/services', '/contact-us', '/about-us', '/our-blog', '/gallery']
-const query = '*[_type == "blogPost" && !(_id in path("drafts.**")) && defined(slug.current)] | order(publishedAt desc) { "slug": slug.current, publishedAt }'
 
 function escapeXml(value) {
   return String(value).replace(/[&<>"']/g, (character) => ({
@@ -19,26 +20,16 @@ function makeUrl(location, lastModified) {
 
 export default async function handler(request, response) {
   const urls = routes.map((route) => makeUrl(`${siteUrl}${route}`))
-  const projectId = process.env.VITE_SANITY_PROJECT_ID
-  const dataset = process.env.VITE_SANITY_DATASET
 
-  if (projectId && /^[a-z0-9]+$/.test(projectId) && dataset && /^[a-z0-9_-]+$/.test(dataset)) {
-    try {
-      const endpoint = `https://${projectId}.apicdn.sanity.io/v2025-02-19/data/query/${encodeURIComponent(dataset)}?query=${encodeURIComponent(query)}`
-      const result = await fetch(endpoint, { headers: { Accept: 'application/json' } })
-      if (result.ok) {
-        const data = await result.json()
-        for (const post of data.result || []) {
-          if (!post.slug || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/i.test(post.slug)) continue
-          const lastModified = post.publishedAt && !Number.isNaN(Date.parse(post.publishedAt))
-            ? new Date(post.publishedAt).toISOString()
-            : undefined
-          urls.push(makeUrl(`${siteUrl}/our-blog/${encodeURIComponent(post.slug)}`, lastModified))
-        }
-      }
-    } catch {
-      // Keep core website URLs available when Sanity is temporarily unreachable.
+  try {
+    const blogs = await getPublishedBlogs()
+    for (const post of blogs) {
+      if (!post.slug) continue
+      const lastModified = post.publishedAt || post.updatedAt || post.createdAt
+      urls.push(makeUrl(`${siteUrl}/our-blog/${encodeURIComponent(post.slug)}`, lastModified))
     }
+  } catch {
+    // Fall back to the website root routes when the database is not configured.
   }
 
   response.setHeader('Content-Type', 'application/xml; charset=utf-8')

@@ -1,40 +1,36 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
-    FaBalanceScale,
     FaBuilding,
-    FaFingerprint,
-    FaGlobeAsia,
     FaStar, FaTelegram,
     FaUserCircle,
-    FaUserShield
 } from 'react-icons/fa'
+import { FaSuitcase, FaSkull } from "react-icons/fa6";
 import AnimatedSection from '../components/AnimatedSection'
 import CounterCard from '../components/CounterCard'
 import HeroSlider from '../components/HeroSlider'
 import SectionHeading from '../components/SectionHeading'
 import TestimonialSlider from '../components/TestimonialSlider'
 import { counters, heroSlides, MoreAboutLayer, practiceItems, testimonials } from '../data/siteData'
-import { getBlogPosts, getSanityImageUrl } from '../lib/sanity'
-import { FaSuitcase, FaSkull } from "react-icons/fa6";
 
 const iconMap = [FaSuitcase, FaBuilding, FaSkull]
 const iconMapping = [FaStar, FaUserCircle, FaTelegram]
 
-
 // image section
 import rahmat_45 from '../assets/home/Rahmat.com_45.jpg'
 import clientSayBg from '../assets/home/7.jpg'
-
 
 function HomePage() {
     const [featuredPost, setFeaturedPost] = useState(null)
 
     useEffect(() => {
         let active = true
-        getBlogPosts()
-            .then((posts) => { if (active) setFeaturedPost(posts[0] || null) })
-            .catch(() => {})
+        fetch('/api/blogs')
+            .then((response) => response.ok ? response.json() : Promise.reject(new Error('Failed')))
+            .then((data) => {
+                if (active) setFeaturedPost((data.blogs || [])[0] || null)
+            })
+            .catch(() => { })
         return () => { active = false }
     }, [])
 
@@ -223,7 +219,7 @@ function HomePage() {
                     <AnimatedSection className="max-w-4xl mx-auto mt-10 border border-(--line) p-6 md:p-8" delay={120}>
                         {featuredPost ? (
                             <article className="grid md:grid-cols-[220px_1fr] gap-6 items-center">
-                                {featuredPost.featuredImage ? <img src={getSanityImageUrl(featuredPost.featuredImage, { width: 600 })} alt={featuredPost.title} className="w-full h-42 md:h-full object-cover" /> : null}
+                                {featuredPost.featuredImage?.url ? <img src={featuredPost.featuredImage.url} alt={featuredPost.title} className="w-full h-42 md:h-full object-cover" /> : null}
                                 <div>
                                     <h3 className="font-title text-2xl">{featuredPost.title}</h3>
                                     <p className="text-sm mt-1 text-[#777]">{featuredPost.publishedAt ? new Date(featuredPost.publishedAt).toLocaleDateString('en-US', { dateStyle: 'long' }) : ''}</p>

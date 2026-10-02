@@ -8,6 +8,9 @@ import AboutPage from './pages/AboutPage'
 import BlogPage from './pages/BlogPage'
 import BlogPostPage from './pages/BlogPostPage'
 import GalleryPage from './pages/GalleryPage'
+import PostBlogLoginPage from './pages/PostBlogLoginPage'
+import PostBlogDashboardPage from './pages/PostBlogDashboardPage'
+import PostBlogEditorPage from './pages/PostBlogEditorPage'
 import DisclaimerModal from './components/DisclaimerModel'
 
 function App() {
@@ -24,6 +27,10 @@ function App() {
           <Route path="/our-blog" element={<BlogPage />} />
           <Route path="/our-blog/:slug" element={<BlogPostPage />} />
           <Route path="/gallery" element={<GalleryPage />} />
+          <Route path="/post-blog" element={<PostBlogLoginPage />} />
+          <Route path="/post-blog/dashboard" element={<PostBlogDashboardPage />} />
+          <Route path="/post-blog/new" element={<PostBlogEditorPage />} />
+          <Route path="/post-blog/edit/:id" element={<PostBlogEditorPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Layout>
