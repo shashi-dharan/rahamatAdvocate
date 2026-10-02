@@ -1,4 +1,5 @@
-import { getBlogBySlug } from './lib/blog-store.js'
+import { getBlogBySlug } from '../server/blog-store.js'
+import { getQueryValue, HttpError, validateSlug } from '../server/http.js'
 
 const baseUrl = 'https://www.rahmatadvocate.com'
 
@@ -18,15 +19,30 @@ function upsertTag(html, selector, tag) {
 }
 
 export default async function handler(request, response) {
-  const slug = typeof request.query?.slug === 'string' ? request.query.slug : ''
+  if (request.method !== 'GET') {
+    return response.status(405).send('Method not allowed.')
+  }
+
+  let slug
+  try {
+    slug = validateSlug(getQueryValue(request, 'slug') || '')
+  } catch (error) {
+    const statusCode = error instanceof HttpError ? error.statusCode : 400
+    return response.status(statusCode).send(error.message || 'Invalid blog slug.')
+  }
+
   try {
     const shellResponse = await fetch(baseUrl)
     if (!shellResponse.ok) throw new Error('Website shell unavailable')
 
     let html = await shellResponse.text()
-    const post = slug ? await getBlogBySlug(slug) : null
+    const post = await getBlogBySlug(slug)
+    if (!post) {
+      response.setHeader('Content-Type', 'text/plain; charset=utf-8')
+      return response.status(404).send('Blog post not found.')
+    }
 
-    if (post) {
+    {
       const title = post.title
       const description = post.excerpt
       const image = post.featuredImage?.url || ''
@@ -73,7 +89,8 @@ export default async function handler(request, response) {
     response.setHeader('Content-Type', 'text/html; charset=utf-8')
     response.setHeader('Cache-Control', 'public, s-maxage=120, stale-while-revalidate=300')
     response.status(200).send(html)
-  } catch {
-    response.redirect(302, `${baseUrl}/`)
+  } catch (error) {
+    console.error('[Blog Page] Unable to render crawler page:', error)
+    response.status(500).send('Unable to load blog page.')
   }
 }

@@ -29,15 +29,7 @@ export function normalizeBlogInput(input = {}) {
   const category = String(input.category || 'General').trim()
   const featuredImage = normalizeFeaturedImage(input.featuredImage, title)
 
-  return {
-    title,
-    slug,
-    excerpt,
-    content,
-    category,
-    status,
-    featuredImage,
-  }
+  return { title, slug, excerpt, content, category, status, featuredImage }
 }
 
 export function formatBlogRecord(record = {}) {
@@ -64,9 +56,7 @@ function normalizePublicationDate(value, fallback) {
 }
 
 async function ensureMemorySeed() {
-  if (memoryStore.size > 0) {
-    return
-  }
+  if (memoryStore.size > 0) return
 
   const fallbackPost = {
     _id: 'local-demo-post',
@@ -88,20 +78,19 @@ async function ensureMemorySeed() {
 
 export async function listBlogs() {
   const db = await getDatabase()
-
   if (!db) {
     await ensureMemorySeed()
-    return [...memoryStore.values()].sort((a, b) => new Date(b.publishedAt || b.updatedAt) - new Date(a.publishedAt || a.updatedAt)).map(formatBlogRecord)
+    return [...memoryStore.values()]
+      .sort((a, b) => new Date(b.publishedAt || b.updatedAt) - new Date(a.publishedAt || a.updatedAt))
+      .map(formatBlogRecord)
   }
 
-  const collection = db.collection('blogs')
-  const docs = await collection.find({}).sort({ publishedAt: -1, createdAt: -1 }).toArray()
+  const docs = await db.collection('blogs').find({}).sort({ publishedAt: -1, createdAt: -1 }).toArray()
   return docs.map(formatBlogRecord)
 }
 
 export async function getPublishedBlogs() {
   const db = await getDatabase()
-
   if (!db) {
     await ensureMemorySeed()
     return [...memoryStore.values()]
@@ -110,36 +99,31 @@ export async function getPublishedBlogs() {
       .map(formatBlogRecord)
   }
 
-  const collection = db.collection('blogs')
-  const docs = await collection.find({ status: 'published' }).sort({ publishedAt: -1, createdAt: -1 }).toArray()
+  const docs = await db.collection('blogs').find({ status: 'published' }).sort({ publishedAt: -1, createdAt: -1 }).toArray()
   return docs.map(formatBlogRecord)
 }
 
 export async function getBlogBySlug(slug) {
   const db = await getDatabase()
-
   if (!db) {
     await ensureMemorySeed()
     const match = [...memoryStore.values()].find((item) => item.slug === slug && item.status === 'published')
     return match ? formatBlogRecord(match) : null
   }
 
-  const collection = db.collection('blogs')
-  const match = await collection.findOne({ slug, status: 'published' })
+  const match = await db.collection('blogs').findOne({ slug, status: 'published' })
   return match ? formatBlogRecord(match) : null
 }
 
 export async function getBlogById(id) {
   const db = await getDatabase()
-
   if (!db) {
     await ensureMemorySeed()
     const match = [...memoryStore.values()].find((item) => String(item._id) === String(id))
     return match ? formatBlogRecord(match) : null
   }
 
-  const collection = db.collection('blogs')
-  const match = await collection.findOne({ _id: id })
+  const match = await db.collection('blogs').findOne({ _id: id })
   return match ? formatBlogRecord(match) : null
 }
 
@@ -163,19 +147,14 @@ export async function createBlog(input) {
 
   const collection = db.collection('blogs')
   const existing = await collection.findOne({ slug: blogRecord.slug })
-  if (existing) {
-    blogRecord.slug = `${blogRecord.slug}-${Date.now()}`
-  }
-
+  if (existing) blogRecord.slug = `${blogRecord.slug}-${Date.now()}`
   await collection.insertOne(blogRecord)
   return formatBlogRecord(blogRecord)
 }
 
 export async function updateBlog(id, input) {
   const existing = await getBlogById(id)
-  if (!existing) {
-    return null
-  }
+  if (!existing) return null
 
   const normalized = normalizeBlogInput({ ...existing, ...input })
   const now = new Date().toISOString()
@@ -183,33 +162,32 @@ export async function updateBlog(id, input) {
     ...existing,
     ...normalized,
     updatedAt: now,
-    publishedAt: normalized.status === 'published' ? normalizePublicationDate(input.publishedAt, existing.publishedAt || now) : null,
+    publishedAt: normalized.status === 'published'
+      ? normalizePublicationDate(input.publishedAt, existing.publishedAt || now)
+      : null,
   }
 
   const db = await getDatabase()
   if (!db) {
-    memoryStore.set(String(existing._id), updated)
+    const existingKey = [...memoryStore.entries()].find(([, item]) => String(item._id) === String(id))?.[0]
+    if (existingKey) memoryStore.delete(existingKey)
+    memoryStore.set(updated.slug, updated)
     return formatBlogRecord(updated)
   }
 
-  const collection = db.collection('blogs')
-  await collection.updateOne({ _id: id }, { $set: updated })
+  await db.collection('blogs').updateOne({ _id: id }, { $set: updated })
   return formatBlogRecord(updated)
 }
 
 export async function deleteBlog(id) {
   const db = await getDatabase()
-
   if (!db) {
-    const found = [...memoryStore.keys()].find((key) => String(memoryStore.get(key)._id) === String(id))
-    if (found) {
-      memoryStore.delete(found)
-      return true
-    }
-    return false
+    const found = [...memoryStore.entries()].find(([, item]) => String(item._id) === String(id))?.[0]
+    if (!found) return false
+    memoryStore.delete(found)
+    return true
   }
 
-  const collection = db.collection('blogs')
-  const result = await collection.deleteOne({ _id: id })
+  const result = await db.collection('blogs').deleteOne({ _id: id })
   return result.deletedCount > 0
 }

@@ -6,7 +6,7 @@ This guide configures the blog API used by the React/Vite site. MongoDB stores b
 
 | Variable | Required | Description |
 | --- | --- | --- |
-| `MONGODB_URI` | Yes for persistent blogs | MongoDB Atlas connection string for the application database user. |
+| `MONGODB_URI` | Yes for persistent blogs and production admin sessions | MongoDB Atlas connection string for the application database user. |
 | `MONGODB_DB_NAME` | No | Database name. Defaults to `rahmat_advocate`. |
 | `CLOUDINARY_CLOUD_NAME` | Yes for persistent images | Cloudinary cloud name. |
 | `CLOUDINARY_API_KEY` | Yes for persistent images | Cloudinary API key. |
@@ -68,14 +68,16 @@ The app starts the local API at `http://localhost:3001` and Vite at its displaye
 The public blog endpoints are:
 
 - `GET /api/blogs` returns published blogs.
-- `GET /api/blogs/<slug>` returns one published blog.
+- `GET /api/blogs?slug=<slug>` returns one published blog.
 
 Admin endpoints require a valid login session:
 
-- `POST /api/auth/login`
-- `GET /api/admin/blogs` and `POST /api/admin/blogs`
-- `GET /api/admin/blogs/<id>`, `PUT /api/admin/blogs/<id>`, and `DELETE /api/admin/blogs/<id>`
-- `POST /api/admin/upload`
+- `POST /api/auth?action=login`, `GET /api/auth?action=session`, and `POST /api/auth?action=logout`
+- `GET /api/admin?resource=blogs` lists blogs; `POST` to the same URL creates a draft or published blog.
+- `GET /api/admin?resource=blogs&id=<id>`, `PUT` to update, and `DELETE` to remove a blog.
+- `POST /api/admin?resource=upload` uploads an image to Cloudinary.
+
+The Vercel deployment uses five Serverless Function entry points: `auth`, `blogs`, `admin`, `sitemap`, and `blog-page`. Shared database, session, validation, and Cloudinary code lives outside `api/`, so it is not deployed as extra functions. `/our-blog/<slug>` is rewritten to `blog-page` to preserve crawler-specific SEO metadata.
 
 Check that the public list endpoint returns JSON and that an admin login returns `200` with `{"authenticated":true,...}`. Then create a test blog and confirm its record appears in Atlas under the selected database's `blogs` collection and its image appears in Cloudinary's `rahmat-advocate/blog` folder.
 
@@ -84,11 +86,11 @@ Check that the public list endpoint returns JSON and that an admin login returns
 - **MongoDB server selection / timeout:** check the URI, URL-encoded database credentials, Atlas user permissions, and Atlas Network Access rules.
 - **MongoDB data appears to disappear:** verify `MONGODB_URI` is set in the API environment. Without it, the API uses its in-memory demo store.
 - **Cloudinary upload fails:** verify all three Cloudinary variables, check the secret for accidental whitespace, and check the server logs for the Cloudinary SDK error.
-- **Admin login returns `500`:** confirm `BLOG_ADMIN_USERNAME` and `BLOG_ADMIN_PASSWORD_HASH` are both configured.
+- **Admin login returns `500`:** confirm `BLOG_ADMIN_USERNAME`, `BLOG_ADMIN_PASSWORD_HASH`, and `MONGODB_URI` are configured. Sessions are stored in MongoDB's `sessions` collection so authentication works across serverless instances.
 - **Image upload returns `413` on Vercel:** this API sends image data as base64 inside JSON, which is larger than the original image and subject to serverless request-size limits. Use a smaller image; the current editor accepts files up to 5 MB, but deployments may require a lower limit.
 
 ## Production Notes
 
-- The current session store uses a process-local `Map`. Serverless instances do not share that memory, so login sessions may not survive requests routed to different instances or cold starts. A durable shared session store must be implemented before relying on this authentication flow in production.
+- Login sessions are stored in MongoDB's `sessions` collection with a TTL index and checked server-side on every protected request. Failed-login rate-limit counters remain process-local and are not shared across serverless instances.
 - The editor currently submits rich-text HTML, which the public article page renders as HTML. Only trusted administrators should have access; sanitize content server-side before rendering if content authorship or access expands.
 - Keep backups and use separate least-privilege credentials for development and production.

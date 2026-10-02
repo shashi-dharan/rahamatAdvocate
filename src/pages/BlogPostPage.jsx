@@ -16,7 +16,7 @@ function BlogPostPage() {
 
   useEffect(() => {
     let active = true
-    fetch(`/api/blogs/${slug}`)
+    fetch(`/api/blogs?slug=${encodeURIComponent(slug)}`)
       .then((response) => response.ok ? response.json() : Promise.reject(new Error('Post not found')))
       .then((data) => {
         if (!active) return

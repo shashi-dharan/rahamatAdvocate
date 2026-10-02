@@ -21,7 +21,7 @@ export function getBlogPosts() {
 
 export function getBlogPostBySlug(slug) {
   if (!slug) return Promise.resolve(null)
-  return fetch(`/api/blogs/${encodeURIComponent(slug)}`)
+  return fetch(`/api/blogs?slug=${encodeURIComponent(slug)}`)
     .then((response) => response.ok ? response.json() : Promise.reject(new Error('Unable to fetch blog post.')))
     .then((data) => data.blog || null)
 }

@@ -13,7 +13,7 @@ function PostBlogLoginPage() {
     useEffect(() => {
         let active = true
 
-        fetch('/api/auth/session', { credentials: 'same-origin' })
+        fetch('/api/auth?action=session', { credentials: 'same-origin' })
             .then(async (response) => {
                 if (!response.ok) {
                     if (active) setStatus('login')
@@ -43,7 +43,7 @@ function PostBlogLoginPage() {
         setStatus('submitting')
 
         try {
-            const response = await fetch('/api/auth/login', {
+            const response = await fetch('/api/auth?action=login', {
                 method: 'POST',
                 credentials: 'same-origin',
                 headers: { 'Content-Type': 'application/json' },

@@ -1,4 +1,4 @@
-import { getPublishedBlogs } from './lib/blog-store.js'
+import { getPublishedBlogs } from '../server/blog-store.js'
 
 const siteUrl = 'https://www.rahmatadvocate.com'
 const routes = ['/', '/services', '/contact-us', '/about-us', '/our-blog', '/gallery']
@@ -19,6 +19,10 @@ function makeUrl(location, lastModified) {
 }
 
 export default async function handler(request, response) {
+  if (request.method !== 'GET') {
+    return response.status(405).json({ error: 'Method not allowed.' })
+  }
+
   const urls = routes.map((route) => makeUrl(`${siteUrl}${route}`))
 
   try {

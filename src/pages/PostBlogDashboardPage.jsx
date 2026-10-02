@@ -13,7 +13,7 @@ function PostBlogDashboardPage() {
 
         const loadBlogs = async () => {
             try {
-                const sessionResponse = await fetch('/api/auth/session', { credentials: 'same-origin' })
+                const sessionResponse = await fetch('/api/auth?action=session', { credentials: 'same-origin' })
                 if (!sessionResponse.ok) {
                     navigate('/post-blog', { replace: true })
                     return
@@ -25,7 +25,7 @@ function PostBlogDashboardPage() {
                     return
                 }
 
-                const response = await fetch('/api/admin/blogs', { credentials: 'same-origin' })
+                const response = await fetch('/api/admin?resource=blogs', { credentials: 'same-origin' })
                 const payload = await response.json().catch(() => ({ blogs: [] }))
                 if (!response.ok) throw new Error(payload.error || 'Unable to load blogs.')
                 if (active) setBlogs(payload.blogs || [])
@@ -44,7 +44,7 @@ function PostBlogDashboardPage() {
         if (!window.confirm(`Delete "${blog.title}"?`)) return
 
         try {
-            const response = await fetch(`/api/admin/blogs/${blog._id}`, {
+            const response = await fetch(`/api/admin?resource=blogs&id=${encodeURIComponent(blog._id)}`, {
                 method: 'DELETE',
                 credentials: 'same-origin',
             })
@@ -57,7 +57,7 @@ function PostBlogDashboardPage() {
     }
 
     const logout = async () => {
-        await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' }).catch(() => { })
+        await fetch('/api/auth?action=logout', { method: 'POST', credentials: 'same-origin' }).catch(() => { })
         navigate('/post-blog', { replace: true })
     }
 

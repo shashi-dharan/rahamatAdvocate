@@ -36,7 +36,7 @@ function PostBlogEditorPage() {
 
     const checkAuth = async () => {
       try {
-        const response = await fetch('/api/auth/session', { credentials: 'same-origin' })
+        const response = await fetch('/api/auth?action=session', { credentials: 'same-origin' })
         if (!response.ok) {
           if (active) navigate('/post-blog', { replace: true })
           return
@@ -53,7 +53,7 @@ function PostBlogEditorPage() {
           return
         }
 
-        const postResponse = await fetch(`/api/admin/blogs/${id}`, { credentials: 'same-origin' })
+        const postResponse = await fetch(`/api/admin?resource=blogs&id=${encodeURIComponent(id)}`, { credentials: 'same-origin' })
         if (postResponse.ok) {
           const data = await postResponse.json().catch(() => ({ blog: null }))
           if (data.blog && active) {
@@ -86,7 +86,7 @@ function PostBlogEditorPage() {
     const reader = new FileReader()
     reader.onload = async () => {
       try {
-        const response = await fetch('/api/admin/upload', {
+        const response = await fetch('/api/admin?resource=upload', {
           method: 'POST',
           credentials: 'same-origin',
           headers: { 'Content-Type': 'application/json' },
@@ -130,7 +130,9 @@ function PostBlogEditorPage() {
       setSaving(true)
       setError('')
 
-      const url = id ? `/api/admin/blogs/${id}` : '/api/admin/blogs'
+      const url = id
+        ? `/api/admin?resource=blogs&id=${encodeURIComponent(id)}`
+        : '/api/admin?resource=blogs'
       const response = await fetch(url, {
         method: id ? 'PUT' : 'POST',
         credentials: 'same-origin',
